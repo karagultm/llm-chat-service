@@ -6,8 +6,6 @@ import (
 	"myapp/pkg/database"
 
 	"github.com/labstack/echo"
-	"github.com/openai/openai-go/v2"
-	"github.com/openai/openai-go/v2/option"
 )
 
 func main() {
@@ -23,9 +21,13 @@ func main() {
 	e := echo.New()
 
 	chatRepo := chat.NewRepository(db)
-	client := openai.NewClient(option.WithAPIKey(cfg.ApiKey))
-	chatService := chat.NewService(chatRepo, &client)
+
+	client := chat.NewClient(cfg.ApiKey)
+
+	chatService := chat.NewService(chatRepo, client)
+
 	chatHandler := chat.NewHandler(chatService)
+
 	e.POST("v1/chat", chatHandler.SendMessage)
 	e.GET("v1/chat/:sessionId", chatHandler.ShowHistory)
 

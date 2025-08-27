@@ -65,15 +65,15 @@ You will create an LLM Chat REST service which uses openai chat completions api 
  - Use mysql 8 or higher verison as database.
  - Use Echo latest stable version as rest library
  - Use official openai go library: https://github.com/openai/openai-go
- - Use zap library for logging
+ - Use zap library for logging ***
  - Use gomock as mock library https://github.com/uber-go/mock
  - Use dotenv library and .env files to keep&read db and openai parameters.
 
 
 ## 4. Project structure and others
  - Use cmd/pkg/internal project structure
- - Use panic recovery middleware
- - Return proper json objects in case of non-successful responses (e.g. 5xx , 4xx)
+ - Use panic recovery middleware ***
+ - Return proper json objects in case of non-successful responses (e.g. 5xx , 4xx) 
  - Add unit tests
 
 
