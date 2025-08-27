@@ -2,12 +2,12 @@ package main
 
 import (
 	"myapp/internal/chat"
+	"myapp/internal/llm"
+	"myapp/internal/models"
 	"myapp/pkg/config"
 	"myapp/pkg/database"
 
 	"github.com/labstack/echo"
-	"github.com/openai/openai-go/v2"
-	"github.com/openai/openai-go/v2/option"
 )
 
 func main() {
@@ -18,14 +18,18 @@ func main() {
 
 	//database
 	db := database.Connect(cfg.DatabaseURL)
-	db.AutoMigrate(&chat.ChatMessage{})
+	db.AutoMigrate(&models.ChatMessage{})
 	//echo başlatma
 	e := echo.New()
 
 	chatRepo := chat.NewRepository(db)
-	client := openai.NewClient(option.WithAPIKey(cfg.ApiKey))
-	chatService := chat.NewService(chatRepo, &client)
+
+	client := llm.NewClient(cfg.ApiKey)
+
+	chatService := chat.NewService(chatRepo, client)
+
 	chatHandler := chat.NewHandler(chatService)
+
 	e.POST("v1/chat", chatHandler.SendMessage)
 	e.GET("v1/chat/:sessionId", chatHandler.ShowHistory)
 
