@@ -1,4 +1,4 @@
-package models
+package chat
 
 type Chat struct { //chatdto
 	Message   string

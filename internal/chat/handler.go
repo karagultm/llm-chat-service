@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"myapp/internal/models"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -24,7 +23,7 @@ func NewHandler(service Service) Handler {
 
 func (h *handler) SendMessage(c echo.Context) error {
 
-	input := new(models.Chat)
+	input := new(Chat)
 	if err := c.Bind(input); err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}

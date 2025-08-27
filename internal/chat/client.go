@@ -1,16 +1,15 @@
-package llm
+package chat
 
 import (
 	"context"
 	"fmt"
-	"myapp/internal/models"
 
 	"github.com/openai/openai-go/v2"
 	"github.com/openai/openai-go/v2/option"
 )
 
 type Client interface {
-	GetCompletion(message string, messages []models.ChatMessage) (response string, err error)
+	GetCompletion(message string, messages []ChatMessage) (response string, err error)
 }
 
 type client struct {
@@ -23,7 +22,7 @@ func NewClient(apiKey string) Client {
 	}
 }
 
-func (c *client) GetCompletion(message string, messages []models.ChatMessage) (response string, err error) {
+func (c *client) GetCompletion(message string, messages []ChatMessage) (response string, err error) {
 	param := openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage(message),
@@ -33,9 +32,9 @@ func (c *client) GetCompletion(message string, messages []models.ChatMessage) (r
 	}
 	for _, msg := range messages {
 		switch msg.Kind {
-		case models.UserPrompt:
+		case UserPrompt:
 			param.Messages = append(param.Messages, openai.UserMessage(msg.Message))
-		case models.LLMOutput:
+		case LLMOutput:
 			param.Messages = append(param.Messages, openai.AssistantMessage(msg.Message))
 		}
 	}

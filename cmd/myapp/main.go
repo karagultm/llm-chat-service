@@ -2,8 +2,6 @@ package main
 
 import (
 	"myapp/internal/chat"
-	"myapp/internal/llm"
-	"myapp/internal/models"
 	"myapp/pkg/config"
 	"myapp/pkg/database"
 
@@ -18,13 +16,13 @@ func main() {
 
 	//database
 	db := database.Connect(cfg.DatabaseURL)
-	db.AutoMigrate(&models.ChatMessage{})
+	db.AutoMigrate(&chat.ChatMessage{})
 	//echo başlatma
 	e := echo.New()
 
 	chatRepo := chat.NewRepository(db)
 
-	client := llm.NewClient(cfg.ApiKey)
+	client := chat.NewClient(cfg.ApiKey)
 
 	chatService := chat.NewService(chatRepo, client)
 

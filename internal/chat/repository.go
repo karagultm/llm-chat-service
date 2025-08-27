@@ -1,14 +1,12 @@
 package chat
 
 import (
-	"myapp/internal/models"
-
 	"gorm.io/gorm"
 )
 
 type Repository interface {
-	Save(message *models.ChatMessage) error
-	Find(sessionID string) ([]models.ChatMessage, error)
+	Save(message *ChatMessage) error
+	Find(sessionID string) ([]ChatMessage, error)
 }
 type repository struct {
 	db *gorm.DB
@@ -20,17 +18,17 @@ func NewRepository(db *gorm.DB) Repository {
 	}
 }
 
-func (r *repository) Save(message *models.ChatMessage) error {
+func (r *repository) Save(message *ChatMessage) error {
 
 	return r.db.Create(message).Error
 }
 
-func (r *repository) Find(sessionID string) ([]models.ChatMessage, error) {
-	var messages []models.ChatMessage
+func (r *repository) Find(sessionID string) ([]ChatMessage, error) {
+	var messages []ChatMessage
 	result := r.db.Where("session_id = ?", sessionID).Find(&messages).Order("timestamp desc")
 
 	if result.Error != nil {
-		return []models.ChatMessage{}, result.Error
+		return []ChatMessage{}, result.Error
 	} else {
 		return messages, nil
 	}

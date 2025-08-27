@@ -2,8 +2,6 @@ package chat
 
 import (
 	"errors"
-	"myapp/internal/llm"
-	"myapp/internal/models"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,27 +13,27 @@ func TestSendMessage_NoHistory_Success(t *testing.T) {
 	//arrange
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
-	clientMock := llm.NewMockClient(ctrl)
+	clientMock := NewMockClient(ctrl)
 	service := NewService(repoMock, clientMock)
 
 	message := "merhaba"
 	openaiMsg := "merhaba, size nasıl yardımcı olabilirim?"
 	sessionId := "sess123"
 
-	response := models.Chat{
+	response := Chat{
 		Message:   openaiMsg,
 		SessionID: sessionId,
 	}
-	history := []models.ChatMessage{}
+	history := []ChatMessage{}
 
 	gomock.InOrder(
-		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *models.ChatMessage) {
+		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *ChatMessage) {
 			assert.Equal(t, message, msg.Message)
 			assert.Equal(t, sessionId, msg.SessionID)
 		}).Return(nil).Times(1),
 		repoMock.EXPECT().Find(sessionId).Return(history, nil).Times(1),
 		clientMock.EXPECT().GetCompletion(message, history).Return(openaiMsg, nil).Times(1),
-		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *models.ChatMessage) {
+		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *ChatMessage) {
 			assert.Equal(t, openaiMsg, msg.Message)
 			assert.Equal(t, sessionId, msg.SessionID)
 		}).Return(nil).Times(1),
@@ -52,18 +50,18 @@ func TestSendMessage_WithHistory_Success(t *testing.T) {
 	//arrange
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
-	clientMock := llm.NewMockClient(ctrl)
+	clientMock := NewMockClient(ctrl)
 	service := NewService(repoMock, clientMock)
 
 	message := "merhaba"
 	openaiMsg := "merhaba, size nasıl yardımcı olabilirim?"
 	sessionId := "sess123"
 
-	response := models.Chat{
+	response := Chat{
 		Message:   openaiMsg,
 		SessionID: sessionId,
 	}
-	history := []models.ChatMessage{
+	history := []ChatMessage{
 		{
 			ID:        69,
 			Kind:      "USER_PROMPT",
@@ -81,7 +79,7 @@ func TestSendMessage_WithHistory_Success(t *testing.T) {
 	}
 
 	gomock.InOrder(
-		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *models.ChatMessage) {
+		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *ChatMessage) {
 			assert.Equal(t, message, msg.Message)
 			assert.Equal(t, sessionId, msg.SessionID)
 		}).Return(nil).Times(1),
@@ -89,7 +87,7 @@ func TestSendMessage_WithHistory_Success(t *testing.T) {
 			assert.Equal(t, sessionId, id)
 		}).Return(history, nil).Times(1),
 		clientMock.EXPECT().GetCompletion(message, history).Return(openaiMsg, nil).Times(1),
-		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *models.ChatMessage) {
+		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *ChatMessage) {
 			assert.Equal(t, openaiMsg, msg.Message)
 			assert.Equal(t, sessionId, msg.SessionID)
 		}).Return(nil).Times(1),
@@ -106,20 +104,20 @@ func TestSendMessage_SaveUserMessageFails(t *testing.T) {
 	//arrange
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
-	clientMock := llm.NewMockClient(ctrl)
+	clientMock := NewMockClient(ctrl)
 	service := NewService(repoMock, clientMock)
 
 	message := "merhaba"
 	sessionId := "sess123"
-	response := models.Chat{}
+	response := Chat{}
 
-	repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *models.ChatMessage) {
+	repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *ChatMessage) {
 		assert.Equal(t, message, msg.Message)
 		assert.Equal(t, sessionId, msg.SessionID)
 	}).Return(errors.New("database save error")).Times(1)
 
 	//act
-	result, err := service.SendMessage(sessionId, message) //nasıl oldu kafam gitti
+	result, err := service.SendMessage(sessionId, message)
 	//assert
 	assert.Equal(t, response, result)
 	assert.Error(t, err)
@@ -130,15 +128,15 @@ func TestSendMessage_FindHistoryFails(t *testing.T) {
 	//arrange
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
-	clientMock := llm.NewMockClient(ctrl)
+	clientMock := NewMockClient(ctrl)
 	service := NewService(repoMock, clientMock)
 
 	message := "merhaba"
 	sessionId := "sess123"
-	response := models.Chat{}
+	response := Chat{}
 
 	gomock.InOrder(
-		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *models.ChatMessage) {
+		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *ChatMessage) {
 			assert.Equal(t, message, msg.Message)
 			assert.Equal(t, sessionId, msg.SessionID)
 		}).Return(nil).Times(1),
@@ -156,16 +154,16 @@ func TestSendMessage_GetCompletionFails(t *testing.T) {
 	//arrange
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
-	clientMock := llm.NewMockClient(ctrl)
+	clientMock := NewMockClient(ctrl)
 	service := NewService(repoMock, clientMock)
 
 	message := "merhaba"
 	sessionId := "sess123"
-	response := models.Chat{}
-	history := []models.ChatMessage{}
+	response := Chat{}
+	history := []ChatMessage{}
 
 	gomock.InOrder(
-		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *models.ChatMessage) {
+		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *ChatMessage) {
 			assert.Equal(t, message, msg.Message)
 			assert.Equal(t, sessionId, msg.SessionID)
 		}).Return(nil).Times(1),
@@ -185,24 +183,24 @@ func TestSendMessage_SaveLLMMessageFails(t *testing.T) {
 	//arrange
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
-	clientMock := llm.NewMockClient(ctrl)
+	clientMock := NewMockClient(ctrl)
 	service := NewService(repoMock, clientMock)
 
 	message := "merhaba"
 	openaiMsg := "merhaba, size nasıl yardımcı olabilirim?"
 	sessionId := "sess123"
 
-	response := models.Chat{}
-	history := []models.ChatMessage{}
+	response := Chat{}
+	history := []ChatMessage{}
 
 	gomock.InOrder(
-		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *models.ChatMessage) {
+		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *ChatMessage) {
 			assert.Equal(t, message, msg.Message)
 			assert.Equal(t, sessionId, msg.SessionID)
 		}).Return(nil).Times(1),
 		repoMock.EXPECT().Find(sessionId).Return(history, nil).Times(1),
 		clientMock.EXPECT().GetCompletion(message, history).Return(openaiMsg, nil).Times(1),
-		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *models.ChatMessage) {
+		repoMock.EXPECT().Save(gomock.Any()).Do(func(msg *ChatMessage) {
 			assert.Equal(t, openaiMsg, msg.Message)
 			assert.Equal(t, sessionId, msg.SessionID)
 		}).Return(errors.New("db save response error")).Times(1),
@@ -221,8 +219,8 @@ func TestFindHistory_Success(t *testing.T) {
 	repoMock := NewMockRepository(ctrl)
 	service := NewService(repoMock, nil)
 
-	history := []models.ChatMessage{
-		{ID: 1, Kind: models.UserPrompt, Message: "merhaba", Timestamp: 111, SessionID: "session1"},
+	history := []ChatMessage{
+		{ID: 1, Kind: UserPrompt, Message: "merhaba", Timestamp: 111, SessionID: "session1"},
 	}
 
 	repoMock.EXPECT().Find("sess1").Return(history, nil).Times(1)

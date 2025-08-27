@@ -1,41 +1,39 @@
 package chat
 
 import (
-	"myapp/internal/llm"
-	"myapp/internal/models"
 	"time"
 )
 
 type Service interface {
-	SendMessage(sessionID string, message string) (models.Chat, error)
-	FindHistory(sessionID string) ([]models.ChatMessage, error)
+	SendMessage(sessionID string, message string) (Chat, error)
+	FindHistory(sessionID string) ([]ChatMessage, error)
 }
 
 type service struct {
 	repo   Repository
-	client llm.Client
+	client Client
 }
 
-func NewService(repo Repository, llmClient llm.Client) Service {
+func NewService(repo Repository, llmClient Client) Service {
 	return &service{
 		repo:   repo,
 		client: llmClient,
 	}
 }
-func (s *service) SendMessage(sessionID string, message string) (models.Chat, error) {
-	msg := models.ChatMessage{
+func (s *service) SendMessage(sessionID string, message string) (Chat, error) {
+	msg := ChatMessage{
 		Message:   message,
 		SessionID: sessionID,
-		Kind:      models.UserPrompt,
+		Kind:      UserPrompt,
 		Timestamp: time.Now().Unix(),
 	}
 	err := s.repo.Save(&msg)
 	if err != nil {
-		return models.Chat{}, err
+		return Chat{}, err
 	}
 	messages, err := s.repo.Find(sessionID)
 	if err != nil {
-		return models.Chat{}, err
+		return Chat{}, err
 	}
 
 	response, err := s.client.GetCompletion(message, messages)
@@ -46,26 +44,26 @@ func (s *service) SendMessage(sessionID string, message string) (models.Chat, er
 	// completion, err = s.client.CreateCompletion(param)
 
 	if err != nil {
-		return models.Chat{}, err
+		return Chat{}, err
 	}
-	openaiMsg := models.ChatMessage{
+	openaiMsg := ChatMessage{
 		Message:   response,
 		SessionID: sessionID,
-		Kind:      models.LLMOutput,
+		Kind:      LLMOutput,
 		Timestamp: time.Now().Unix(),
 	}
 	err = s.repo.Save(&openaiMsg)
 	if err != nil {
-		return models.Chat{}, err
+		return Chat{}, err
 	}
 
-	return models.Chat{
+	return Chat{
 		Message:   openaiMsg.Message,
 		SessionID: openaiMsg.SessionID,
 	}, nil
 }
 
-func (s *service) FindHistory(sessionID string) ([]models.ChatMessage, error) {
+func (s *service) FindHistory(sessionID string) ([]ChatMessage, error) {
 	messages, err := s.repo.Find(sessionID)
 	if err != nil {
 		return nil, err
