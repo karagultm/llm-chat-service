@@ -10,6 +10,7 @@
 package chat
 
 import (
+	"myapp/internal/models"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"
@@ -40,10 +41,10 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Find mocks base method.
-func (m *MockRepository) Find(sessionID string) ([]ChatMessage, error) {
+func (m *MockRepository) Find(sessionID string) ([]models.ChatMessage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Find", sessionID)
-	ret0, _ := ret[0].([]ChatMessage)
+	ret0, _ := ret[0].([]models.ChatMessage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -55,7 +56,7 @@ func (mr *MockRepositoryMockRecorder) Find(sessionID any) *gomock.Call {
 }
 
 // Save mocks base method.
-func (m *MockRepository) Save(message *ChatMessage) error {
+func (m *MockRepository) Save(message *models.ChatMessage) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Save", message)
 	ret0, _ := ret[0].(error)
