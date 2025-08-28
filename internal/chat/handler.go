@@ -8,7 +8,7 @@ import (
 )
 
 type Handler interface {
-	SendMessage(c echo.Context) error
+	Send(c echo.Context) error
 	ShowHistory(c echo.Context) error
 }
 type handler struct {
@@ -21,7 +21,7 @@ func NewHandler(service Service) Handler {
 	}
 }
 
-func (h *handler) SendMessage(c echo.Context) error {
+func (h *handler) Send(c echo.Context) error {
 
 	input := new(Chat)
 	if err := c.Bind(input); err != nil {
@@ -38,7 +38,7 @@ func (h *handler) SendMessage(c echo.Context) error {
 	}
 	response, err := h.service.SendMessage(input.SessionID, input.Message)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "message coudnt save to the database")
+		return c.String(http.StatusInternalServerError, "service error occured")
 	}
 
 	return c.JSON(http.StatusOK, response)
