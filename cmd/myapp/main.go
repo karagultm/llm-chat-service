@@ -28,7 +28,7 @@ func main() {
 
 	chatHandler := chat.NewHandler(chatService)
 
-	e.POST("v1/chat", chatHandler.SendMessage)
+	e.POST("v1/chat", chatHandler.Send)
 	e.GET("v1/chat/:sessionId", chatHandler.ShowHistory)
 
 	e.Logger.Fatal(e.Start(":8080"))
