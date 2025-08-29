@@ -161,7 +161,7 @@ func TestSend_MessageTooLong(t *testing.T) {
 	assert.Equal(t, "message length should be between 3 and 2048", rec.Body.String())
 }
 
-func TestSend_ServiceError(t *testing.T) {
+func TestSend_ServiceError_SendMessage(t *testing.T) {
 	// Setup
 	e := echo.New()
 
@@ -194,4 +194,107 @@ func TestSend_ServiceError(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	assert.Equal(t, "service error occured", rec.Body.String())
 
+}
+
+func TestShowHistory_Success(t *testing.T) {
+	//AAA kuralı-> arrange-act-assert
+	//arrange
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	e := echo.New()
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	serviceMock := NewMockService(ctrl)
+	handler := NewHandler(serviceMock)
+
+	c.SetPath("v1/chat/:sessionId")
+	c.SetParamNames("sessionId")
+	c.SetParamValues("811360d0-462f-4fbf-b90b-ccba665986f1")
+	id := "811360d0-462f-4fbf-b90b-ccba665986f1"
+	history := []ChatMessage{
+		{
+			ID:        69,
+			Kind:      UserPrompt,
+			Message:   "selam naber? ben talha",
+			Timestamp: 1756212819,
+			SessionID: "811360d0-462f-4fbf-b90b-ccba665986f1",
+		},
+		{
+			ID:        70,
+			Kind:      LLMOutput,
+			Message:   "Selam Talha! Ben iyiyim, teşekkür ederim. Sen nasılsın? Nasıl yardımcı olabilirim?",
+			Timestamp: 1756212821,
+			SessionID: "811360d0-462f-4fbf-b90b-ccba665986f1",
+		},
+	}
+	historyJSON, err := json.Marshal(history)
+	if err != nil {
+		t.Fatal(err)
+	}
+	serviceMock.EXPECT().FindHistory(id).Return(history, nil).Times(1)
+	//act
+	err = handler.ShowHistory(c)
+	//assert
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.JSONEq(t, string(historyJSON), rec.Body.String())
+
+}
+
+func TestShowHistory_InvalidSessionID(t *testing.T) {
+	//arrange
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	e := echo.New()
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	serviceMock := NewMockService(ctrl)
+	handler := NewHandler(serviceMock)
+
+	c.SetPath("v1/chat/:sessionId")
+	c.SetParamNames("sessionId")
+	c.SetParamValues("bozukid")
+
+	//act
+	handler.ShowHistory(c) //cstring olduğundan error gelmiyor ki
+	//assert
+	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	assert.Equal(t, "uuid is not correct format", rec.Body.String())
+
+}
+
+func TestShowHistory_ServiceError_FindHistory(t *testing.T) {
+	//arrange
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	e := echo.New()
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	serviceMock := NewMockService(ctrl)
+	handler := NewHandler(serviceMock)
+
+	c.SetPath("v1/chat/:sessionId")
+	c.SetParamNames("sessionId")
+	c.SetParamValues("811360d0-462f-4fbf-b90b-ccba665986f1")
+	id := "811360d0-462f-4fbf-b90b-ccba665986f1"
+
+	serviceMock.EXPECT().FindHistory(id).Return(nil, errors.New("service error: find history")).Times(1)
+
+	//act
+	handler.ShowHistory(c) //cstring olduğundan error gelmiyor ki
+	//assert
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	assert.Equal(t, "session id bulunamadı db de", rec.Body.String())
 }
