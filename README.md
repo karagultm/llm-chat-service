@@ -1,11 +1,12 @@
-# Project Description
+# LLM Chat Backend Service
+## Project Description
 In this project, a backend service based on OpenAI's LLM (Large Language Model) was developed. The service provides two main functions:
 - Sending a message to the LLM (chat)
 - Viewing the conversation history with the LLM on a session basis
 
 Users can send messages to the LLM by providing a sessionId or by starting a new session. All conversation history is stored in a MySQL database and can be retrieved when needed.
 
-# 📂 Project Structure
+## 📂 Project Structure
 
 The project is organized according to the **cmd / pkg / internal** standard:
 
@@ -31,7 +32,7 @@ The project is organized according to the **cmd / pkg / internal** standard:
 └── go.mod / go.sum
 ```
 
-# ⚙️ Technologies and Libraries Used
+## ⚙️ Technologies and Libraries Used
 - **Go** (>=1.22)
 - **Echo**: for REST API
 - **GORM**: for MySQL database operations
@@ -41,7 +42,7 @@ The project is organized according to the **cmd / pkg / internal** standard:
 - **Gomock (uber-go/mock)**: for mocking external dependencies in unit tests
 - **dotenv**: for reading configuration from `.env`
 
-# ⚡ Setup and Run
+## ⚡ Setup and Run
 
 1) Clone the repo:
     ```bash
@@ -74,7 +75,7 @@ The project is organized according to the **cmd / pkg / internal** standard:
 	```
 > On startup, the application connects to MySQL using GORM and tries to create the table (if it doesn’t exist) via `AutoMigrate`. For this to work, the **DATABASE_URL** in `.env` must be correct and the target database (e.g., `chatdb`) must be available.
 
-# 📡 API Endpoints
+## 📡 API Endpoints
 ### 1) Send Chat
 **POST** `/v1/chat`
 
@@ -121,7 +122,7 @@ Response (example):
 
 ---
 
-# 🧪 Tests
+## 🧪 Tests
 
 - Unit tests are written for both **Handler** and **Service** layers.
 - External dependencies (**OpenAI**, **MySQL**) are mocked using **GoMock**.
@@ -134,7 +135,7 @@ go test ./...
 
 ---
 
-# 📝 Logging
+## 📝 Logging
 
 - The application logs with **zap**.
 - Request/response flow, errors, and warnings are logged in detail.
