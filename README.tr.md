@@ -1,3 +1,4 @@
+# LLM Chat Backend Service
 ## Proje Açıklaması
 Bu projede, OpenAI tabanlı bir LLM (Large Language Model) backend servisi geliştirildi. Servis iki ana işlev sunar:
 - LLM'e mesaj gönderme (chat)
@@ -143,3 +144,4 @@ go test ./...
 ---
 
 **Not:** Detaylı kabul kriterleri ve senaryolar için `chat-application-backend.md` dosyasına bakabilirsiniz.
+
