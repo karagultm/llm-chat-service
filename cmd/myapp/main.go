@@ -4,6 +4,7 @@ import (
 	"myapp/internal/chat"
 	"myapp/pkg/config"
 	"myapp/pkg/database"
+	"myapp/pkg/logger"
 
 	"github.com/labstack/echo"
 )
@@ -13,6 +14,8 @@ func main() {
 	cfg := config.Load() // bu da özel fonksiyonmuş
 
 	//logger açma
+	logger.Init(cfg.Env == "dev")
+	defer logger.Log.Sync()
 
 	//database
 	db := database.Connect(cfg.DatabaseURL)

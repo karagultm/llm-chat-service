@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"myapp/pkg/logger"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,10 +13,12 @@ import (
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	gomock "go.uber.org/mock/gomock"
+	"go.uber.org/zap"
 )
 
 func TestSend_Success(t *testing.T) {
 	// Setup
+	logger.Log = zap.NewNop()
 	e := echo.New()
 
 	msg := "merhaba canım"
@@ -58,6 +61,7 @@ func TestSend_Success(t *testing.T) {
 
 func TestSend_BindError(t *testing.T) {
 	// Setup
+	logger.Log = zap.NewNop()
 	e := echo.New()
 
 	ctrl := gomock.NewController(t)
@@ -88,6 +92,7 @@ func TestSend_EmptySessionID_GeneratesUUID(t *testing.T) {
 }
 func TestSend_InvalidSessionID(t *testing.T) {
 	// Setup
+	logger.Log = zap.NewNop()
 	e := echo.New()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -113,6 +118,7 @@ func TestSend_InvalidSessionID(t *testing.T) {
 
 func TestSend_MessageTooShort(t *testing.T) {
 	// Setup
+	logger.Log = zap.NewNop()
 	e := echo.New()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -138,6 +144,7 @@ func TestSend_MessageTooShort(t *testing.T) {
 
 func TestSend_MessageTooLong(t *testing.T) {
 	// Setup
+	logger.Log = zap.NewNop()
 	e := echo.New()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -163,8 +170,8 @@ func TestSend_MessageTooLong(t *testing.T) {
 
 func TestSend_ServiceError_SendMessage(t *testing.T) {
 	// Setup
+	logger.Log = zap.NewNop()
 	e := echo.New()
-
 	msg := "merhaba canım"
 	id := "811360d0-462f-4fbf-b90b-ccba665986f1"
 	chatJSON := `{"Message":"merhaba canım" ,"SessionID":"811360d0-462f-4fbf-b90b-ccba665986f1"}`
@@ -199,6 +206,7 @@ func TestSend_ServiceError_SendMessage(t *testing.T) {
 func TestShowHistory_Success(t *testing.T) {
 	//AAA kuralı-> arrange-act-assert
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -247,6 +255,7 @@ func TestShowHistory_Success(t *testing.T) {
 
 func TestShowHistory_InvalidSessionID(t *testing.T) {
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -273,6 +282,7 @@ func TestShowHistory_InvalidSessionID(t *testing.T) {
 
 func TestShowHistory_ServiceError_FindHistory(t *testing.T) {
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
