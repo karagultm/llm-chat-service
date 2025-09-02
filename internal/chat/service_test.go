@@ -2,15 +2,18 @@ package chat
 
 import (
 	"errors"
+	"myapp/pkg/logger"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 func TestSendMessage_NoHistory_Success(t *testing.T) {
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
 	clientMock := NewMockClient(ctrl)
@@ -48,6 +51,7 @@ func TestSendMessage_NoHistory_Success(t *testing.T) {
 func TestSendMessage_WithHistory_Success(t *testing.T) {
 	//gerek var mı buna anlamadım ya
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
 	clientMock := NewMockClient(ctrl)
@@ -102,6 +106,7 @@ func TestSendMessage_WithHistory_Success(t *testing.T) {
 
 func TestSendMessage_SaveUserMessageFails(t *testing.T) {
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
 	clientMock := NewMockClient(ctrl)
@@ -126,6 +131,7 @@ func TestSendMessage_SaveUserMessageFails(t *testing.T) {
 
 func TestSendMessage_FindHistoryFails(t *testing.T) {
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
 	clientMock := NewMockClient(ctrl)
@@ -152,11 +158,11 @@ func TestSendMessage_FindHistoryFails(t *testing.T) {
 
 func TestSendMessage_GetCompletionFails(t *testing.T) {
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
 	clientMock := NewMockClient(ctrl)
 	service := NewService(repoMock, clientMock)
-
 	message := "merhaba"
 	sessionId := "sess123"
 	response := Chat{}
@@ -181,6 +187,7 @@ func TestSendMessage_GetCompletionFails(t *testing.T) {
 
 func TestSendMessage_SaveLLMMessageFails(t *testing.T) {
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
 	clientMock := NewMockClient(ctrl)
@@ -215,6 +222,7 @@ func TestSendMessage_SaveLLMMessageFails(t *testing.T) {
 }
 func TestFindHistory_Success(t *testing.T) {
 	//arrange
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
 	service := NewService(repoMock, nil)
@@ -233,6 +241,7 @@ func TestFindHistory_Success(t *testing.T) {
 
 }
 func TestFindHistory_NotFound(t *testing.T) {
+	logger.Log = zap.NewNop()
 	ctrl := gomock.NewController(t)
 	repoMock := NewMockRepository(ctrl)
 	service := NewService(repoMock, nil)

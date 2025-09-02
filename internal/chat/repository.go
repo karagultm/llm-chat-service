@@ -1,6 +1,9 @@
 package chat
 
 import (
+	"myapp/pkg/logger"
+
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -28,6 +31,7 @@ func (r *repository) Find(sessionID string) ([]ChatMessage, error) {
 	result := r.db.Where("session_id = ?", sessionID).Find(&messages).Order("timestamp desc")
 
 	if result.Error != nil {
+		logger.Log.Error("database find error", zap.Error(result.Error))
 		return []ChatMessage{}, result.Error
 	} else {
 		return messages, nil

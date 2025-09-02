@@ -6,10 +6,9 @@ var Log *zap.Logger
 
 func Init(isDev bool) {
 
-	// if isDev {
-	// 	Log, _ := zap.NewDevelopment()
-	// } else {
-	// 	Log, _ := zap.NewProduction()
-	// }
-
+	if isDev {
+		Log, _ = zap.NewDevelopment()
+	} else {
+		Log, _ = zap.NewProduction()
+	}
 }

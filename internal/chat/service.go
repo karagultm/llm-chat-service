@@ -1,7 +1,10 @@
 package chat
 
 import (
+	"myapp/pkg/logger"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type Service interface {
@@ -21,6 +24,10 @@ func NewService(repo Repository, llmClient Client) Service {
 	}
 }
 func (s *service) SendMessage(sessionID string, message string) (Chat, error) {
+	logger.Log.Info("Sending message",
+		zap.String("sessionID", sessionID),
+		zap.String("message", message))
+
 	msg := ChatMessage{
 		Message:   message,
 		SessionID: sessionID,
@@ -29,10 +36,12 @@ func (s *service) SendMessage(sessionID string, message string) (Chat, error) {
 	}
 	err := s.repo.Save(&msg)
 	if err != nil {
+		logger.Log.Error("user message failed to saved", zap.Error(err))
 		return Chat{}, err
 	}
 	messages, err := s.repo.Find(sessionID)
 	if err != nil {
+		logger.Log.Error("load to history failed", zap.Error(err))
 		return Chat{}, err
 	}
 
@@ -44,6 +53,7 @@ func (s *service) SendMessage(sessionID string, message string) (Chat, error) {
 	// completion, err = s.client.CreateCompletion(param)
 
 	if err != nil {
+		logger.Log.Error("get completion fail", zap.Error(err))
 		return Chat{}, err
 	}
 	openaiMsg := ChatMessage{
@@ -54,9 +64,11 @@ func (s *service) SendMessage(sessionID string, message string) (Chat, error) {
 	}
 	err = s.repo.Save(&openaiMsg)
 	if err != nil {
+		logger.Log.Error("llm response failed to save", zap.Error(err))
 		return Chat{}, err
 	}
 
+	logger.Log.Info("message sended")
 	return Chat{
 		Message:   openaiMsg.Message,
 		SessionID: openaiMsg.SessionID,
@@ -64,9 +76,13 @@ func (s *service) SendMessage(sessionID string, message string) (Chat, error) {
 }
 
 func (s *service) FindHistory(sessionID string) ([]ChatMessage, error) {
+	logger.Log.Info("Finding history",
+		zap.String("sessionID", sessionID))
 	messages, err := s.repo.Find(sessionID)
 	if err != nil {
+		logger.Log.Error("failed to load history", zap.Error(err))
 		return nil, err
 	}
+	logger.Log.Info("history loaded")
 	return messages, nil
 }
